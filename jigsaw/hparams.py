@@ -1,0 +1,117 @@
+import os
+import pickle
+import torch
+
+class Hparams():
+    def __init__(self):
+
+        self.cuda = True if torch.cuda.is_available() else False
+
+        """
+        Data Parameters
+        """
+
+        os.makedirs('../model', exist_ok=True)
+        os.makedirs('../data/', exist_ok=True)
+        os.makedirs('../results/', exist_ok=True)
+
+        self.train_csv = '../data/amey_csv/my_top_train.csv'
+        self.valid_csv = '../data/amey_csv/my_top_valid.csv'
+        self.test_csv = '../data/amey_csv/my_top_test.csv'
+        
+        self.permutations = '../data/jigsaw_permutations.pickle'
+        
+        self.train_dir = '/home1/amey/CheXpert-v1.0-downsampled/'
+        self.valid_dir = '/home1/amey/CheXpert-v1.0-downsampled/'
+        self.test_dir = '/home1/amey/CheXpert-v1.0-downsampled/'
+
+        """
+        Model Parameters
+        """
+
+        os.makedirs('../model/', exist_ok=True)
+
+        self.frame_shape = (256, 256)
+        self.crop_shape = (225, 225)
+        self.patch_shape = (75, 75)
+        self.image_shape = (64, 64)
+        self.num_channel = 3
+        self.num_classes = 1000
+
+        self.id_to_class = {
+            0: 'No Finding',
+            1: 'Cardiomegaly',
+            2: 'Edema',
+            3: 'Consolidation',
+            4: 'Atelectasis',
+            5: 'Pleural Effusion',
+            6: 'Enlarged Cardiomediastinum',
+            7: 'Lung Opacity',
+            8: 'Lung Lesion',
+            9: 'Pneumonia',
+            10: 'Pneumothorax',
+            11: 'Pleural Other',
+            12: 'Fracture',
+            13: 'Support Devices'
+        }
+    
+        self.eval_labels = ['Cardiomegaly', 'Edema', 'Consolidation', 'Atelectasis', 'Pleural Effusion']
+        self.eval_id_to_class = {
+#             0: 'No Finding',
+            0: 'Cardiomegaly',
+            1: 'Edema',
+            2: 'Consolidation',
+            3: 'Atelectasis',
+            4: 'Pleural Effusion',
+        }
+
+        """
+        Training parameters
+        """
+
+        self.gpu_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device_ids = [0,1,2]
+
+        self.pretrained = True
+
+        self.thresh = 0.5
+        self.repeat_infer = 1
+        self.eval_dp_on = False
+
+        self.num_epochs = 50
+        self.batch_size = 64
+
+        self.learning_rate = 0.0001
+
+        self.momentum1 = 0.5
+        self.momentum2 = 0.999
+        
+        self.drop_rate = 0.5
+
+        self.avg_mode = 'micro'
+
+        self.print_interval = 1000
+        
+        self.TTA = 0
+        self.augment = 0
+        
+        f = open(self.permutations, 'rb')      
+        self.permutations = pickle.load(f)
+        self.label_strings = self.permutations['label']
+        self.permutations = self.permutations['permutation']
+        f.close() 
+
+        ################################################################################################################################################
+        self.exp_name = 'jigsaw-densenet/'
+        ################################################################################################################################################
+
+        self.result_dir = '../results/'+self.exp_name
+        os.makedirs(self.result_dir, exist_ok=True)
+
+        self.model_dir = '../model/' + self.exp_name
+        os.makedirs(self.model_dir, exist_ok=True)
+
+        self.model = self.model_dir + 'model'
+
+
+hparams = Hparams()
